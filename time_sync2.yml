@@ -1,0 +1,16 @@
+---
+- name: 시간 동기화
+  hosts: all
+  become: yes
+  tasks:
+    - name: 타임존 설정
+      community.general.timezone:
+        name: 'Asia/Seoul'
+    
+    - name: 시간 동기화2
+      ansible.builtin.include_role:
+        name: fedora.linux_system_roles.timesync
+      vars:
+        timesync_ntp_servers:
+          - hostname: kr.pool.ntp.org
+            iburst: true

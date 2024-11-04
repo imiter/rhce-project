@@ -1,0 +1,64 @@
+---
+- name: FTP  서버 구성
+  hosts: test
+  tasks:
+    ##########################################
+    # 0) 준비 사항
+    #   * files/vsftpd.conf.j2
+    #    > anonymous disable
+    #   * files/{user_list, ftpusers}
+    #    > root 사용자 허용
+    #    1) 패키지 설치 - vsftpd, firewalld
+    #    2) 서비스 설정 - 파일 배포
+    #       * /etc/vsftpd.conf
+    #       * /etc/vsftpd/{vsftpd.conf}
+    #    3) 서비스 기동 - vsftpd
+    #    4) 방화벽 등록 - ftp
+    ###########################################
+    - name: 패키지 설치 - vsftpd, firewalld
+      ansible.builtin.dnf:
+        name: 
+          - vsftpd
+          - firewalld
+        state: present
+
+    - name: 설정 파일 배포
+      ansible.builtin.copy:
+        src: "files/{{ item }}"
+        dest: /etc/vsftpd
+        owner: root
+        group: root
+        mode: '0600'
+      loop:
+        - user_list
+        - ftpusers
+
+    - name: 설정 파일 배포 - vsftpd.conf
+      ansible.builtin.copy:
+        src: "files/vsftpd.conf"
+        dest: /etc/vsftpd
+        owner: root
+        group: root
+        mode: '0600'
+      vars:
+        anonymous_on: "YES"
+      notify: restart_ftp
+    - name: 서비스 기동
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - vsftpd
+        - firewalld
+    - name: 방화벽 기동
+      ansible.posix.firewalld:
+        service: ftp
+        permanent: true
+        state: enabled
+        immediate: true
+        
+- handlers:
+    - name: restart_ftp
+      ansible.builtin.service: 
+        state: restarted

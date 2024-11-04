@@ -1,0 +1,306 @@
+#------------------------------------------------------------------------------
+# FILE LOCATIONS
+#------------------------------------------------------------------------------
+{% if psqlserver_datadir is defined %}
+data_directory = '{{ psqlserver_datadir }}'
+{% endif %}
+#data_directory = 'ConfigDir'		# use data in another directory
+{% if psqlserver_hbafile is defined %}
+hba_file = '{{ psqlserver_hbafile }}'
+{% endif %}
+#hba_file = 'ConfigDir/pg_hba.conf'	# host-based authentication file
+{% if psqlserver_identfile is defined %}
+ident_file = '{{ psqlserver_identfile }}'
+{% endif %}
+#ident_file = 'ConfigDir/pg_ident.conf'	# ident configuration file
+{% if psqlserver_externalpidfile is defined %}
+external_pid_file = '{{ psqlserver_externalpidfile }}'
+{% endif %}
+
+#------------------------------------------------------------------------------
+# CONNECTIONS AND AUTHENTICATION
+#------------------------------------------------------------------------------
+# - Connection Settings -
+#listen_addresses = 'localhost'		# what IP address(es) to listen on;
+listen_addresses = '{{ psqlserver_listenips | default('localhost', true) }}'
+#port = 5432				# (change requires restart)
+{% if psqlserver_port is defined %}
+port = {{ psqlserver_port }}
+{% endif %}
+max_connections = {{ psqlserver_max_connections | default(100, true) }}
+#unix_socket_directories = '/tmp'	# comma-separated list of directories
+{% if psqlserver_unixsocketdirectories is defined %}
+unix_socket_directories = '{{ psqlserver_unixsocketdirectories }}'
+{% endif %}
+
+# - SSL -
+{% if psqlserver_ssl is defined %}
+ssl = {{ psqlserver_ssl }}
+{% endif %}
+#ssl = off
+{% if psqlserver_cafile is defined %}
+ssl_ca_file = '{{ psqlserver_cafile }}'
+{% endif %}
+#ssl_ca_file = ''
+{% if psqlserver_certfile is defined %}
+ssl_cert_file = '{{ psqlserver_certfile }}'
+{% endif %}
+#ssl_cert_file = 'server.crt'
+{% if psqlserver_crlfile is defined %}
+ssl_crl_file = '{{ psqlserver_crlfile }}'
+{% endif %}
+#ssl_crl_file = ''
+{% if psqlserver_keyfile is defined %}
+ssl_key_file = '{{ psqlserver_keyfile }}'
+{% endif %}
+#ssl_key_file = 'server.key'
+{% if psqlserver_ciphers is defined %}
+ssl_ciphers = '{{ psqlserver_ciphers }}'
+{% endif %}
+#ssl_ciphers = 'HIGH:MEDIUM:+3DES:!aNULL' # allowed SSL ciphers
+{% if psqlserver_preferserverciphers is defined %}
+ssl_prefer_server_ciphers = {{ psqlserver_preferserverciphers }}
+{% endif %}
+#ssl_prefer_server_ciphers = on
+{% if psqlserver_ecdhcurve is defined %}
+ssl_ecdh_curve = '{{ psqlserver_ecdhcurve }}'
+{% endif %}
+#ssl_ecdh_curve = 'prime256v1'
+{% if psqlserver_minprotocolversion is defined %}
+ssl_min_protocol_version = '{{ psqlserver_minprotocolversion }}'
+{% endif %}
+#ssl_min_protocol_version = 'TLSv1'
+{% if psqlserver_maxprotocolversion is defined %}
+ssl_max_protocol_version = '{{ psqlserver_maxprotocolversion }}'
+{% endif %}
+#ssl_max_protocol_version = ''
+{% if psqlserver_dhparamsfile is defined %}
+ssl_dh_params_file = '{{ psqlserver_dhparamsfile }}'
+{% endif %}
+#ssl_dh_params_file = ''
+{% if psqlserver_passphrasecommand is defined %}
+ssl_passphrase_command ='{{ psqlserver_passphrasecommand }}'
+{% endif %}
+#ssl_passphrase_command = ''
+{% if psqlserver_passphrasecommandsupportsreload is defined %}
+ssl_passphrase_command_supports_reload = {{ psqlserver_passphrasecommandsupportsreload }}
+{% endif %}
+#ssl_passphrase_command_supports_reload = off
+
+
+#------------------------------------------------------------------------------
+# RESOURCE USAGE (except WAL)
+#------------------------------------------------------------------------------
+# - Memory -
+#shared_buffers = 128MB			# min 128kB
+shared_buffers = {{ psqlserver_sharedbuffers | default('128MB', true) }}
+#dynamic_shared_memory_type = posix	# the default is the first option
+dynamic_shared_memory_type = {{ psqlserver_sharedmemorytype | default('posix', true) }}
+# - Checkpoints -
+
+#checkpoint_timeout = 5min		# range 30s-1d
+max_wal_size = {{ psqlserver_max_wal_size | default('1GB', true) }}
+min_wal_size = {{ psqlserver_min_wal_size | default('80MB', true) }}
+
+#------------------------------------------------------------------------------
+# REPLICATION SENDING SERVER
+#------------------------------------------------------------------------------
+{% if psqlserver_max_wal_senders is defined %}
+max_wal_senders = {{ psqlserver_max_wal_senders }}
+{% endif %}
+{% if psqlserver_max_replication_slots is defined %}
+max_replication_slots = {{ psqlserver_max_replication_slots }}
+{% endif %}
+{% if psqlserver_wal_keep_size is defined %}
+wal_keep_size = {{ psqlserver_wal_keep_size }}
+{% endif %}
+{% if psqlserver_max_slot_wal_keep_size is defined %}
+max_slot_wal_keep_size = {{ psqlserver_max_slot_wal_keep_size }}
+{% endif %}
+{% if psqlserver_wal_sender_timeout is defined %}
+wal_sender_timeout = {{ psqlserver_wal_sender_timeout }}
+{% endif %}
+{% if psqlserver_track_commit_timestamp is defined %}
+track_commit_timestamp = {{ psqlserver_track_commit_timestamp }}
+{% endif %}
+
+#------------------------------------------------------------------------------
+# REPLICATION PRIMARY SERVER
+#------------------------------------------------------------------------------
+{% if psqlserver_synchronous_standby_names is defined %}
+synchronous_standby_names = {{ psqlserver_synchronous_standby_names }}
+{% endif %}
+{% if psqlserver_vacuum_defer_cleanup_age is defined %}
+vacuum_defer_cleanup_age = {{ psqlserver_vacuum_defer_cleanup_age }}
+{% endif %}
+
+#------------------------------------------------------------------------------
+# REPLICATION STANDBY SERVER
+#------------------------------------------------------------------------------
+{% if psqlserver_primary_conninfo is defined %}
+primary_conninfo = {{ psqlserver_primary_conninfo }}
+{% endif %}
+{% if psqlserver_primary_slot_name is defined %}
+primary_slot_name = {{ psqlserver_primary_slot_name }}
+{% endif %}
+{% if psqlserver_promote_trigger_file is defined %}
+promote_trigger_file = {{ psqlserver_promote_trigger_file }}
+{% endif %}
+{% if psqlserver_hot_standby is defined %}
+hot_standby = {{ psqlserver_hot_standby }}
+{% endif %}
+{% if psqlserver_max_standby_archive_delay is defined %}
+max_standby_archive_delay = {{ psqlserver_max_standby_archive_delay }}
+{% endif %}
+{% if psqlserver_max_standby_streaming_delay is defined %}
+max_standby_streaming_delay = {{ psqlserver_max_standby_streaming_delay }}
+{% endif %}
+{% if psqlserver_wal_receiver_create_temp_slot is defined %}
+wal_receiver_create_temp_slot = {{ psqlserver_wal_receiver_create_temp_slot }}
+{% endif %}
+{% if psqlserver_wal_receiver_status_interval is defined %}
+wal_receiver_status_interval = {{ psqlserver_wal_receiver_status_interval }}
+{% endif %}
+{% if psqlserver_hot_standby_feedback is defined %}
+hot_standby_feedback = {{ psqlserver_hot_standby_feedback }}
+{% endif %}
+{% if psqlserver_wal_receiver_timeout is defined %}
+wal_receiver_timeout = {{ psqlserver_wal_receiver_timeout }}
+{% endif %}
+{% if psqlserver_wal_retrieve_retry_interval is defined %}
+wal_retrieve_retry_interval = {{ psqlserver_wal_retrieve_retry_interval }}
+{% endif %}
+{% if psqlserver_recovery_min_apply_delay is defined %}
+recovery_min_apply_delay = {{ psqlserver_recovery_min_apply_delay }}
+{% endif %}
+
+#------------------------------------------------------------------------------
+# REPLICATION SUBSCRIBERS
+#------------------------------------------------------------------------------
+{% if psqlserver_max_logical_replication_workers is defined %}
+max_logical_replication_workers = {{ psqlserver_max_logical_replication_workers }}
+{% endif %}
+{% if psqlserver_max_sync_workers_per_subscription is defined %}
+max_sync_workers_per_subscription = {{ psqlserver_max_sync_workers_per_subscription }}
+{% endif %}
+
+#------------------------------------------------------------------------------
+# WAL
+#------------------------------------------------------------------------------
+{% if psqlserver_wal_level is defined %}
+wal_level = {{ psqlserver_wal_level }}
+{% endif %}
+{% if psqlserver_fsync is defined %}
+fsync = {{ psqlserver_fsync }}
+{% endif %}
+{% if psqlserver_synchronous_commit is defined %}
+synchronous_commit = {{ psqlserver_synchronous_commit }}
+{% endif %}
+{% if psqlserver_wal_sync_method is defined %}
+wal_sync_method = {{ psqlserver_wal_sync_method }}
+{% endif %}
+{% if psqlserver_full_page_writes is defined %}
+full_page_writes = {{ psqlserver_full_page_writes }}
+{% endif %}
+{% if psqlserver_wal_log_hints is defined %}
+wal_log_hints = {{ psqlserver_wal_log_hints }}
+{% endif %}
+{% if psqlserver_wal_compression is defined %}
+wal_compression = {{ psqlserver_wal_compression }}
+{% endif %}
+{% if psqlserver_wal_init_zero is defined %}
+wal_init_zero = {{ psqlserver_wal_init_zero }}
+{% endif %}
+{% if psqlserver_wal_recycle is defined %}
+wal_recycle = {{ psqlserver_wal_recycle }}
+{% endif %}
+{% if psqlserver_wal_buffers is defined %}
+wal_buffers = {{ psqlserver_wal_buffers }}
+{% endif %}
+{% if psqlserver_wal_writer_delay is defined %}
+wal_writer_delay = {{ psqlserver_wal_writer_delay }}
+{% endif %}
+{% if psqlserver_wal_writer_flush_after is defined %}
+wal_writer_flush_after = {{ psqlserver_wal_writer_flush_after }}
+{% endif %}
+{% if psqlserver_wal_skip_threshold is defined %}
+wal_skip_threshold = {{ psqlserver_wal_skip_threshold }}
+{% endif %}
+{% if psqlserver_commit_delay is defined %}
+commit_delay = {{ psqlserver_commit_delay }}
+{% endif %}
+{% if psqlserver_commit_siblings is defined %}
+commit_siblings = {{ psqlserver_commit_siblings }}
+{% endif %}
+
+#------------------------------------------------------------------------------
+# QUERY TUNING
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+# REPORTING AND LOGGING
+#------------------------------------------------------------------------------
+# - Where to Log -
+#log_destination = 'syslog'
+{% if psqlserver_logdestination is defined %}
+log_destination = '{{ psqlserver_logdestination }}'
+{% endif %}
+
+{% if psqlserver_loglineprefix is defined %}
+log_line_prefix = '{{ psqlserver_loglineprefix }}'
+{% endif %}
+#log_timezone = 'Europe/Berlin'
+{% if psqlserver_logtimezone is defined %}
+log_timezone = '{{ psqlserver_logtimezone }}'
+{% endif %}
+
+#------------------------------------------------------------------------------
+# PROCESS TITLE
+#------------------------------------------------------------------------------
+{% if psqlserver_clustername is defined %}
+cluster_name ='{{ psqlserver_clustername }}'
+{% endif %}
+#cluster_name = ''
+
+# On FreeBSD, this is a performance hog, so keep it off when you need speed
+{% if psqlserver_updateprocesstitle is defined %}
+update_process_title = {{ psqlserver_updateprocesstitle }}
+{% endif %}
+
+
+#------------------------------------------------------------------------------
+# STATISTICS
+#------------------------------------------------------------------------------
+{% if psqlserver_statstempdir is defined %}
+stats_temp_directory = '{{ psqlserver_statstempdir }}'
+{% endif %}
+
+#------------------------------------------------------------------------------
+# CLIENT CONNECTION DEFAULTS
+#------------------------------------------------------------------------------
+# - Locale and Formatting -
+datestyle = '{{ psqlserver_datestyle | default('iso, mdy') }}'
+{% if psqlserver_timezone is defined %}
+timezone = '{{ psqlserver_timezone }}'
+{% endif %}
+
+{% if psqlserver_default_transaction_read_only is defined %}
+default_transaction_read_only = '{{ psqlserver_default_transaction_read_only }}'
+{% endif %}
+
+# These settings are initialized by initdb, but they can be changed.
+lc_messages = '{{ psqlserver_lcmessages | default('C') }}'			# locale for system error message
+					# strings
+lc_monetary = '{{ psqlserver_lcmonetary | default('C') }}'			# locale for monetary formatting
+lc_numeric = '{{ psqlserver_lcnumeric | default('C') }}'			# locale for number formatting
+lc_time = '{{ psqlserver_lctime | default('C') }}'				# locale for time formatting
+
+# default configuration for text search
+default_text_search_config = '{{ psqlserver_textsearchconfig | default('pg_catalog.english') }}'
+
+#include = '...'			# include file
+{% if psqlserver_includedir is defined %}
+include_dir = '{{ psqlserver_includedir }}'
+{% endif %}
+

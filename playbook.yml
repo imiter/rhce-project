@@ -1,0 +1,10 @@
+---
+- name: import packages import_playbook
+  ansible.builtin.import_playbook: packages.yml
+
+- name: import time_sync2.yml
+  ansible.builtin.import_playbook: time_sync.yml
+
+- name: import webservers playbooks
+  ansible.builtin.import_playbook: webservers.yml
+    

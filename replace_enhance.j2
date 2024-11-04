@@ -1,0 +1,10 @@
+# 호스트명과 기본 시스템 정보
+HOST={{ ansible_hostname }}
+BIOS={{ ansible_bios_version }}
+MEMORY={{ ansible_memtotal_mb }}
+
+# 디스크 정보를 더 간단하게 처리
+{% for disk in ['sda', 'sdb', 'sdc'] %}
+{% set disk_var = 'ansible_devices.' + disk %}
+{{ disk | upper }}_DISK_SIZE={% if disk_var is defined and disk_var in ansible_devices %}{{ ansible_devices[disk]['size'] }}{% else %}NONE{% endif %}
+{% endfor %}

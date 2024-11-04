@@ -1,0 +1,79 @@
+---
+- name: LVM 작업
+  hosts: webservers
+  gather_facts: true
+  vars:
+    sdb1size: "{{ (ansible_devices.sdb.partitions.sdb1.size | split) [0]  }}"
+  tasks:
+    #######################################################
+    # 에러메세지 점검:
+    # * sdb 디스크가 없으면  => 'The device does not exist'
+    # * 파티션 800MiB 보다 작으면 => 'Size not Enough'
+    # LVM 작업
+    # * 파티션 작업
+    # * LVM 작업
+    #   - VG 작업
+    #   - LV 작업
+    # * 파일 시스템 작업
+    # * 마운트 작업(/etc/fstab)
+    #
+    #######################################################
+      - name: 에러메시지 출력 form
+        ansible.builtin.fail:
+          msg: 'The device does not exist'
+        when: ansible_devices.sdb is not defined
+
+      - name: 파티션 작업
+        community.general.parted:
+          # parted /dev/sdb mkpart primary 1Mib 100%
+          # parted /dev/sdb set 1 lvm on
+          device: /dev/sdb
+          number: 1
+          flags: [ lvm ]
+          state: present
+          fs_type: ext4
+          part_start: 1MiB
+          part_end: 100%
+
+      - name: 팩트 재 수집
+        ansible.builtin.setup:
+          gather_subset:
+            - facter
+      - name: size 프린트 테스트
+        ansible.builtin.debug:
+          msg: "{{ sdb1size }}"
+
+      - name: 에러 메시지(파티션 크기 유무) 800M 작을 경우 출력
+        ansible.builtin.fail:
+          msg: "Size not Enough"
+        when: >
+          sdb1size | float < 800
+
+      - name: LVM 작업 - research VG
+        community.general.lvg:
+          vg: research
+          pvs: /dev/sdb1
+
+      - name: LVM 작업 - data LV
+        community.general.lvol:
+          # lvcreate -L 500m -n data research
+          vg: research
+          lv: data
+          size: 500m
+      
+      - name: FS 작업 - ext4
+        community.general.filesystem:
+          fstype: ext4
+          dev: /dev/research/data
+          force: true
+      
+      - name: Mount 작업 - /mnt/research
+        ansible.posix.mount:
+          # mount -t ext4 -o defaults /dev/research /mnt/research
+          # vi /etc/fstab
+          # => /dev/research/data /mnt/research ext4 defaults 0 2 형식을 이러한 형식으로 mount model 사용
+          src: /dev/research/data
+          path: /mnt/research 
+          fstype: ext4
+          opts: defaults
+          state: mounted

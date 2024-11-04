@@ -1,0 +1,9 @@
+---
+# Prepare first phase
+- name: Merge packages_install from all groups this host is a member of
+  ansible.builtin.set_fact:
+    packages_installmergedgroup: "{{ packages_installgroup.keys() | list | intersect(group_names) | map('extract', packages_installgroup) | list | flatten }}"
+  when: packages_installgroup is defined
+- name: combine lists into packages_install var
+  ansible.builtin.set_fact: 
+    packages_install: "{{ [packages_installmergedgroup, packages_installhost, packages_installrole] | select('defined') | flatten | unique }}"

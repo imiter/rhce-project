@@ -1,0 +1,9 @@
+---
+# Prepare first phase
+- name: Merge packages_remove from all groups this host is a member of
+  ansible.builtin.set_fact:
+    packages_removemergedgroup: "{{ packages_removegroup.keys() | list | intersect(group_names) | map('extract', packages_removegroup) | list | flatten }}"
+  when: packages_removegroup is defined
+- name: combine lists into packages_remove var
+  ansible.builtin.set_fact: 
+    packages_remove: "{{ [packages_removemergedgroup, packages_removehost, packages_removerole] | select('defined') | flatten | unique }}"

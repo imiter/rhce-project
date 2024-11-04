@@ -1,0 +1,34 @@
+---
+# tasks file for roles/apache
+- name: 패키지 설치
+  ansible.builtin.dnf:
+    name:
+      - httpd
+      - firewalld
+      - mod_ssl
+    state: present
+
+- name: 웹 서버 설정
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    mode: '0644'
+
+- name: 웹 서비스 기동
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+  loop:
+    - httpd
+    - firewalld
+
+- name: 포트 등록 방화벽
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop:
+    - http
+    - https
+

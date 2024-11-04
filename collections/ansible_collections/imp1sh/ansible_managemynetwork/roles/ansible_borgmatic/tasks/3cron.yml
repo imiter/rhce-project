@@ -1,0 +1,14 @@
+---
+- name: setup cronjob
+  ansible.builtin.cron:
+    name: "{{ borgmatic_cron_name }}"
+    hour: "{{ borgmatic_cron_hour }}"
+    minute: "{{ borgmatic_cron_minute }}"
+    user: "root"
+    job: "{{ borgmatic_venv_wrapper }} -c {{ borgmatic_pathconfig }}/{{ borgmatic_fileconfig }} --syslog-verbosity 1"
+      #- name: setup cron PATH env
+      #  ansible.builtin.cron:
+      #    user: "root"
+      #    name: PATH
+      #    env: yes
+      #    value: /usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin

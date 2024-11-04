@@ -1,0 +1,27 @@
+{% if ansible_hostname == 'ansible3' %}
+HOST={{ ansible_hostname }}
+{% endif %}
+
+{% if ansible_bios_version == '6.00' %}
+BIOS={{ ansible_bios_version }}
+{% endif %}
+
+{% if ansible_memtotal_mb >= 777 %}
+MEMORY={{ ansible_memtotal_mb }}
+{% endif %}
+
+{% if ansible_devices.sda is defined  %}
+SDA_DISK_SIZE={{ ansible_devices.sda.size }}
+{% else %}
+SDA_DIS_SIZE=NONE
+{% endif%}
+{% if ansible_devices.sdb is defined  %}
+SDA_DISK_SIZE={{ ansible_devices.sdb.size }}
+{% else %}
+SDA_DIS_SIZE=NONE
+{% endif%}
+{% if ansible_devices.sdc is defined  %}
+SDA_DISK_SIZE={{ ansible_devices.sdc.size }}
+{% else %}
+SDA_DISK_SIZE=NONE
+{% endif%}

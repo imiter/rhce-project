@@ -1,0 +1,24 @@
+---
+- name: /root/hwreport.txt 파일 출력 생성
+  hosts: ansible3.example.com
+  gather_facts: true
+  tasks:
+    ###############################################
+    # 1) 인벤토리 호스트이름
+    # 2) 총 메모리
+    # 3) 디스크 장치 sda 크기
+    # 4) 디스크 장치 sdb 크기
+    # 5) 키 , 벨류 형태로 포함 
+    # -----------------------------------
+    # 2) http://192.168.10.10/hwreport.empty 파일 사용 
+    #    -> /root/wereport.txt 파일 이름으로 저장
+    # 3) 디스크 정보 없을 경우 none으로 설정 
+    ###############################################3
+
+    - name: 템플릿으로 파일 배포 하기 - http://192.168.10.10/hwreport.empty
+      ansible.builtin.template:
+        src: replace.j2
+        dest: /root/hwreport.txt
+        owner: root
+        group: root
+        mode: "0644"

@@ -1,0 +1,47 @@
+---
+- name: 0) 웹 / 웹 방화벽 등록 하기
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: 1) 웹 / 방화벽 패키지 설치
+      ansible.builtin.yum:
+        name: 
+          - httpd
+          - mod_ssl
+          - firewalld
+        state: present
+    - name: 2) 웹 서비스 실행
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - httpd
+        - firewalld
+    
+    - name: 3) http, https 방화벽 열어주기
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - http
+        - https
+    - name: 3-2) 끍어오기
+      ansible.builtin.setup:
+        filter: ansible_fqdn
+      register: fqdn
+
+    - name: debug
+      ansible.builtin.debug:
+        msg: "host fqdn: {{ ansible_fqdn }}"
+      
+    - name: 4) ansible3, ansible4 파일 출력 하기
+      ansible.builtin.file:
+        path: /ansible_fqdn/hello.html
+        state: touch
+        mode: '0755'
+      when: |
+        fqdn == 'ansible3.example.com' or
+        fqdn == 'ansible4.example.com'

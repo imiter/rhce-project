@@ -1,0 +1,21 @@
+---
+- name: making multi target users 
+  hosts: dev, test, prod
+  gather_facts: true
+  tasks:
+    - name: 커맨드 함수
+      ansible.builtin.command: cat /usr/lib/systemd/system/multi-user.target
+      register: multi_user
+
+    - name: 스플릿트
+      ansible.builtin.set_fact:
+        target_name: "{{ multi_user.cmd[1].split('/')[-1] }}"
+
+    - name: 멀티타겟 유저 인지 확인
+      ansible.builtin.debug:
+        msg: "{{ target_name }}"
+      failed_when: target_name != "multi-user.target"
+      
+    - name: 멀티카겟 유저 확인 및 변경
+      ansible.builtin.command:
+        cmd: systemctl set-defaults mult

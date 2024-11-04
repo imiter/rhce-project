@@ -1,0 +1,20 @@
+---
+- name: Setting OS variables
+  ansible.builtin.include_vars: "{{lookup('ansible.builtin.first_found', params)}}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+        - "default.yml"
+      paths:
+        - "vars"
+- name: Run install tasks
+  ansible.builtin.import_tasks: install.yml
+- name: create databases
+  community.mysql.mysql_db:
+    name: "{{ mariadb_databases }}"
+    state: present
+    login_user: "root"
+    login_password: "{{ mariadb_rootpw }}"
+  when: mariadb_databases is defined

@@ -1,0 +1,14 @@
+---
+- name: Manage storage
+  hosts: dev
+  roles:
+    - name: fedora.linux_system_roles.storage
+      storage_pools:
+        - name: research 
+          disks: sdb
+          volumes:
+            - name: data
+              size: "500M"
+              mount_point: "/mnt/research"
+              fs_type: ext4
+              state: present

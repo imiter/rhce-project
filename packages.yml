@@ -1,0 +1,11 @@
+---
+- name: 0) 패키지 설치 하기
+  hosts: dev, test, prod
+  gather_facts: true
+  tasks:
+    - name: 1) 패키지 설치 하기
+      ansible.builtin.dnf:
+        name:
+          - "php"
+          - "mariadb"
+        state: present

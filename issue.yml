@@ -1,0 +1,9 @@
+---
+- name: Issue 파일 배포
+  hosts: dev, test, prod
+  tasks:
+    - name: /etc/issue 파일 배포
+      ansible.builtin.copy:
+        content: "{{ issue_content }}\n"
+        dest: /etc/issue
+        mode: "0644"

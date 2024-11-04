@@ -1,0 +1,21 @@
+---
+- name: 0) 추가 적인 실습 레포지포리 playbook 생성
+  hosts: all
+  vars:
+    repository:
+      - name: MyBase
+        description: "base software"
+        baseurl: "http://192.168.10.10/pkg/BaseOS" 
+      - name: MyAppStream 
+        description: "Appstream software"
+        baseurl: "http://192.168.10.10/pkg/AppStream/"
+        
+  tasks:
+    - name: yum_repository 활용 실습 제게
+      ansible.builtin.yum_repository:
+        name: "{{ item.name }}"
+        description: "{{ item.description }}"
+        baseurl: "{{ item.baseurl }}"
+        gpgcheck: no
+        enabled: yes
+      loop: "{{ repository }}"
